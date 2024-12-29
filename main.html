@@ -60,6 +60,42 @@
             animation: spin 1s linear infinite;
         }
 
+        .nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 25, 47, 0.8);
+            padding: 15px 25px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            z-index: 100;
+        }
+
+        .nav a {
+            color: #64ffda;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #64ffda;
+            transition: width 0.3s;
+        }
+
+        .nav a:hover::after {
+            width: 100%;
+        }
+
         .clock {
             position: fixed;
             top: 20px;
@@ -129,6 +165,11 @@
             box-shadow: 0 10px 20px rgba(100, 255, 218, 0.2);
         }
 
+        .school-info h2 {
+            color: #64ffda;
+            margin-bottom: 0.5rem;
+        }
+
         .skill {
             background: rgba(100, 255, 218, 0.1);
             padding: 1.5rem;
@@ -142,6 +183,16 @@
         .skill:hover {
             transform: scale(1.02) rotateX(2deg);
             box-shadow: 0 5px 15px rgba(100, 255, 218, 0.2);
+        }
+
+        .particle {
+            pointer-events: none;
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: #64ffda;
+            border-radius: 50%;
+            opacity: 0;
         }
 
         @keyframes fadeOut {
@@ -163,7 +214,13 @@
         <div class="loader-ring"></div>
     </div>
 
-    <div class="clock"></div>
+    <nav class="nav">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="clock">12:00:00</div>
 
     <div class="container">
         <h1>Cavan Reed</h1>
@@ -183,7 +240,28 @@
     </div>
 
     <script>
-        // Accurate Clock
+        // Mouse trail effect
+        document.addEventListener('mousemove', function(e) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = e.clientX + 'px';
+            particle.style.top = e.clientY + 'px';
+            document.body.appendChild(particle);
+
+            particle.style.opacity = '0.5';
+            particle.style.transform = 'scale(1)';
+            particle.style.transition = 'all 1s ease';
+
+            setTimeout(() => {
+                particle.style.opacity = '0';
+                particle.style.transform = 'scale(0.5)';
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }, 100);
+        });
+
+        // Clock
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
@@ -192,11 +270,32 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Background movement based on mouse
+        // Update background position based on mouse movement
         document.addEventListener('mousemove', function(e) {
-            const x = (e.clientX / window.innerWidth) * 100;
-            const y = (e.clientY / window.innerHeight) * 100;
+            const x = e.clientX / window.innerWidth * 100;
+            const y = e.clientY / window.innerHeight * 100;
             document.body.style.backgroundPosition = `${x}% ${y}%`;
+        });
+
+        // 3D card effect
+        document.querySelectorAll('.skill, .school-info').forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = -(x - centerX) / 10;
+                
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'none';
+            });
         });
     </script>
 </body>
